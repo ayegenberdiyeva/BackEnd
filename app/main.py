@@ -84,10 +84,10 @@ def delete_post(id: int):
 def update_post(id: int, upost: Post):
     params = [upost.title,upost.publish, id]
     if upost.content == "":
-        update_query = """UPDATE post SET title = %s, status = %s WHERE post_id = %s RETURNING *"""
+        update_query = """UPDATE post SET title = %s, status = %s, updated_at = current_timestamp WHERE post_id = %s RETURNING *"""
     else:
         params.insert(1, upost.content)
-        update_query = """UPDATE post SET title = %s, content = %s, status = %s WHERER post_id = %s RETURNING *"""
+        update_query = """UPDATE post SET title = %s, content = %s, status = %s, updated_at = current_timestamp WHERER post_id = %s RETURNING *"""
 
     cursor.execute(update_query, params)
     updating_post = cursor.fetchone()
