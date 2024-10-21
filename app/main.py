@@ -6,7 +6,7 @@ from random import randrange
 import psycopg
 from psycopg.rows import dict_row
 import time
-from . import models
+from . import models, schemas
 from .database import engine,get_db
 from sqlalchemy.orm import Session
 
@@ -21,12 +21,6 @@ app = FastAPI()
 #     finally:
 #         db.close()
 
-class Post(BaseModel):
-    title: str
-    content: str
-    status: bool = True
-    # rating: Optional[int] = None
-
 while True:    
     try:
         conn = psycopg.connect(host='localhost', dbname='Fastapi', user='aminayegenberdiyeva', password='yegnbb', row_factory=dict_row)
@@ -38,9 +32,9 @@ while True:
         print("Error: ", error)
         time.sleep(5)
 
-my_posts = [
-    {"title": "title of post 1", "content": "content of post 1", "id": 1},
-    {"title": "title of post 2", "content": "content of post 2", "id": 2}]
+# my_posts = [
+#     {"title": "title of post 1", "content": "content of post 1", "id": 1},
+#     {"title": "title of post 2", "content": "content of post 2", "id": 2}]
 
 def find_post(id):
     for p in my_posts:
@@ -57,12 +51,6 @@ def find_index_post(id):
 def root():
     return {"message": "Hello//"}
 
-@app.get("/poststest")
-def test_posts(db: Session = Depends(get_db)):
-
-    posts = db.query(models.Post).all()
-    return {"data": posts}
-
 @app.get("/posts")
 def get_posts(db: Session = Depends(get_db)):
     # cursor.execute("""SELECT * FROM post""")
@@ -71,7 +59,7 @@ def get_posts(db: Session = Depends(get_db)):
     return {"data": posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_posts(new_post: Post, db: Session = Depends(get_db)):
+def create_posts(new_post: schemas.PostCreate, db: Session = Depends(get_db)):
     # cursor.execute("""INSERT INTO post (title, content, status, post_rating) values (%s, %s, %s, %s) RETURNING * """, 
     #                (new_post.title, new_post.content, new_post.publish, new_post.rating))
     # created_post = cursor.fetchone()
@@ -112,7 +100,7 @@ def delete_post(id: int, db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @app.put("/posts/{id}")
-def update_post(id: int, upost: Post, db: Session = Depends(get_db)):
+def update_post(id: int, upost: schemas.PostUpdate, db: Session = Depends(get_db)):
     # params = [upost.title,upost.publish, id]
     # if upost.content == "":
     #     update_query = """UPDATE post SET title = %s, status = %s, updated_at = current_timestamp WHERE post_id = %s RETURNING *"""
